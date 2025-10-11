@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>브랜드 마케팅 성과 대시보드</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: "Pretendard", "Noto Sans KR", sans-serif;
+            margin: 0;
+            background: #f3f4f6;
+            color: #222;
+            line-height: 1.6;
+        }
+        header {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 24px 60px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        h1 {
+            font-size: 26px;
+            margin: 0;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        .tab-buttons {
+            background: white;
+            padding: 16px 60px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            gap: 10px;
+        }
+        .tab-btn {
+            padding: 10px 22px;
+            border: none;
+            background: #e5e7eb;
+            color: #374151;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.25s ease;
+        }
+        .tab-btn:hover {
+            background: #d1d5db;
+        }
+        .tab-btn.active {
+            background: #4F46E5;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(79,70,229,0.3);
+        }
+        main {
+            padding: 40px 60px;
+        }
+        .tab {
+            display: none;
+        }
+        .tab.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(20px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+        h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 24px;
+        }
+        .summary-container {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        .summary-card {
+            flex: 1;
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+            padding: 24px;
+            text-align: center;
+            transition: all 0.25s ease;
+        }
+        .summary-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+        }
+        .summary-card h3 {
+            color: #6b7280;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        .summary-card p {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0;
+        }
+        .chart-box {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 50px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+            transition: all 0.25s ease;
+            width: 100%;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .chart-box:hover {
+            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+            transform: translateY(-3px);
+        }
+        .js-plotly-plot, .plot-container, .plotly-graph-div {
+            width: 100% !important;
+            height: 600px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>브랜드 마케팅 성과 대시보드</h1>
+    </header>
+
+    <div class="tab-buttons">
+        <button class="tab-btn active" onclick="showTab('adTab')">검색광고 성과</button>
+        <button class="tab-btn" onclick="showTab('liveTab')">쇼핑라이브 성과</button>
+    </div>
+
+    <main>
+        <!-- 검색광고 섹션 -->
+        <div id="adTab" class="tab active">
+            <h2>검색광고 성과 분석</h2>
+            <div class="chart-box" id="trend"></div>
+            <div class="chart-box" id="share"></div>
+            <div class="chart-box" id="gender"></div>
+            <div class="chart-box" id="age"></div>
+            <div class="chart-box" id="heat_b"></div>
+        </div>
+
+        <!-- 쇼핑라이브 섹션 -->
+        <div id="liveTab" class="tab">
+            <h2>쇼핑라이브 성과 분석</h2>
+            <div class="summary-container">
+                <div class="summary-card"></div>
+                <div class="summary-card"></div>
+                <div class="summary-card"></div>
+            </div>
+            <div class="chart-box" id="weekday"></div>
+            <div class="chart-box" id="promotion"></div>
+        </div>
+    </main>
+
+    <script>
+        function showTab(tabId) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`.tab-btn[onclick="showTab('${tabId}')"]`).classList.add('active');
+        }
+    </script>
+    <script src="{{ url_for('static', filename='chart.js') }}"></script>
+</body>
+</html>

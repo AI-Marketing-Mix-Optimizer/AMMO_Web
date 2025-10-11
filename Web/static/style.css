@@ -1,0 +1,77 @@
+body {
+    font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+    background-color: #f9fafb;
+    color: #222;
+    margin: 0;
+}
+
+header {
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+nav {
+    margin-top: 10px;
+}
+
+.tab-btn {
+    border: none;
+    background: #e0e0e0;
+    color: #333;
+    padding: 10px 20px;
+    border-radius: 8px;
+    margin: 0 5px;
+    cursor: pointer;
+}
+
+.tab-btn.active {
+    background: #2ec4b6;
+    color: white;
+    font-weight: bold;
+}
+
+main {
+    padding: 30px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+.chart-box {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.chart-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.summary-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.summary-card {
+    flex: 1;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    padding: 25px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.tab {
+    display: none;
+}
+
+.tab.active {
+    display: block;
+}
