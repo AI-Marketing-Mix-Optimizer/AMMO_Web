@@ -1,173 +1,112 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>브랜드 마케팅 성과 대시보드</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <style>
-        body {
-            font-family: "Pretendard", "Noto Sans KR", sans-serif;
-            margin: 0;
-            background: #f3f4f6;
-            color: #222;
-            line-height: 1.6;
-        }
-        header {
-            background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            padding: 24px 60px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        h1 {
-            font-size: 26px;
-            margin: 0;
-            font-weight: 700;
-            color: #1f2937;
-        }
-        .tab-buttons {
-            background: white;
-            padding: 16px 60px;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            gap: 10px;
-        }
-        .tab-btn {
-            padding: 10px 22px;
-            border: none;
-            background: #e5e7eb;
-            color: #374151;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 15px;
-            transition: all 0.25s ease;
-        }
-        .tab-btn:hover {
-            background: #d1d5db;
-        }
-        .tab-btn.active {
-            background: #4F46E5;
-            color: white;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 6px rgba(79,70,229,0.3);
-        }
-        main {
-            padding: 40px 60px;
-        }
-        .tab {
-            display: none;
-        }
-        .tab.active {
-            display: block;
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from {opacity: 0; transform: translateY(20px);}
-            to {opacity: 1; transform: translateY(0);}
-        }
-        h2 {
-            font-size: 20px;
-            font-weight: 700;
-            color: #111827;
-            margin-bottom: 24px;
-        }
-        .summary-container {
-            display: flex;
-            gap: 24px;
-            margin-bottom: 40px;
-        }
-        .summary-card {
-            flex: 1;
-            background: white;
-            border-radius: 14px;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.06);
-            padding: 24px;
-            text-align: center;
-            transition: all 0.25s ease;
-        }
-        .summary-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            transform: translateY(-2px);
-        }
-        .summary-card h3 {
-            color: #6b7280;
-            font-weight: 500;
-            margin-bottom: 10px;
-        }
-        .summary-card p {
-            font-size: 22px;
-            font-weight: 700;
-            color: #1f2937;
-            margin: 0;
-        }
-        .chart-box {
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 50px;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
-            transition: all 0.25s ease;
-            width: 100%;
-            max-width: 1200px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .chart-box:hover {
-            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
-            transform: translateY(-3px);
-        }
-        .js-plotly-plot, .plot-container, .plotly-graph-div {
-            width: 100% !important;
-            height: 600px !important;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>AMMO | AI Marketing Mix Optimizer</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
-    <header>
-        <h1>브랜드 마케팅 성과 대시보드</h1>
-    </header>
-
-    <div class="tab-buttons">
-        <button class="tab-btn active" onclick="showTab('adTab')">검색광고 성과</button>
-        <button class="tab-btn" onclick="showTab('liveTab')">쇼핑라이브 성과</button>
+  <!-- ================= 헤더 ================= -->
+  <header class="main-header">
+    <div class="container header-flex">
+      <img src="{{ url_for('static', filename='ammo_logo.png') }}" alt="AMMO Logo" class="logo">
+      <nav class="main-nav">
+        <a href="#" class="nav-link active" onclick="showTab('adTab')">검색광고</a>
+        <a href="#" class="nav-link" onclick="showTab('liveTab')">쇼핑라이브</a>
+        <a href="#" class="nav-link" onclick="showTab('simTab')">시뮬레이션</a>
+      </nav>
     </div>
+  </header>
 
-    <main>
-        <!-- 검색광고 섹션 -->
-        <div id="adTab" class="tab active">
-            <h2>검색광고 성과 분석</h2>
-            <div class="chart-box" id="trend"></div>
-            <div class="chart-box" id="share"></div>
-            <div class="chart-box" id="gender"></div>
-            <div class="chart-box" id="age"></div>
-            <div class="chart-box" id="heat_b"></div>
+  <!-- ================= 요약 섹션 (Hero Section) ================= -->
+  <section class="hero">
+    <div class="container hero-inner">
+      <h2>AI Marketing Mix Optimizer</h2>
+      <p>검색광고와 쇼핑라이브 데이터를 기반으로 브랜드별 ROI를 최적화합니다.</p>
+      <div class="hero-cards">
+        <div class="hero-card">
+          <h3>분석 브랜드</h3>
+          <p>비에날씬 · 락토핏 · 덴마크 유산균</p>
         </div>
-
-        <!-- 쇼핑라이브 섹션 -->
-        <div id="liveTab" class="tab">
-            <h2>쇼핑라이브 성과 분석</h2>
-            <div class="summary-container">
-                <div class="summary-card"></div>
-                <div class="summary-card"></div>
-                <div class="summary-card"></div>
-            </div>
-            <div class="chart-box" id="weekday"></div>
-            <div class="chart-box" id="promotion"></div>
+        <div class="hero-card">
+          <h3>분석 기간</h3>
+          <p>2019년 ~ 2025년</p>
         </div>
-    </main>
+        <div class="hero-card">
+          <h3>데이터 규모</h3>
+          <p>약 20만+ 일별 로그</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <script>
-        function showTab(tabId) {
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            document.querySelector(`.tab-btn[onclick="showTab('${tabId}')"]`).classList.add('active');
-        }
-    </script>
-    <script src="{{ url_for('static', filename='chart.js') }}"></script>
+  <!-- ================= 메인 콘텐츠 ================= -->
+  <main class="container">
+    <section id="adTab" class="tab active">
+      <h2>검색광고 성과 분석</h2>
+      <div class="chart-box" id="trend"></div>
+      <div class="chart-box" id="share"></div>
+      <div class="chart-box" id="gender"></div>
+      <div class="chart-box" id="age"></div>
+      <div class="chart-box" id="heat_b"></div>
+    </section>
+
+    <section id="liveTab" class="tab">
+      <h2>쇼핑라이브 성과 분석</h2>
+      <div class="summary-row">
+        <div class="summary-card" id="totalVideos"></div>
+        <div class="summary-card" id="totalComments"></div>
+        <div class="summary-card" id="avgDuration"></div>
+      </div>
+      <div class="chart-box">{{ day_chart | safe }}</div>
+      <div class="chart-box">{{ promo_chart | safe }}</div>
+    </section>
+
+    <section id="simTab" class="tab">
+      <h2>ROI 시뮬레이션</h2>
+      <div class="chart-box form-box">
+        <label>검색광고비 (원): <input type="number" id="searchAdCost" value="1000000"></label>
+        <label>쇼핑라이브 광고비 (원): <input type="number" id="liveAdCost" value="500000"></label>
+        <label>경쟁사 이벤트:
+          <select id="competitorEvent">
+            <option value="N">없음</option>
+            <option value="Y">있음</option>
+          </select>
+        </label>
+        <button onclick="runSimulation()">실행</button>
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-card">
+          <h3>예측 매출액</h3>
+          <p id="result-revenue">0 원</p>
+        </div>
+        <div class="summary-card">
+          <h3>예측 ROI</h3>
+          <p id="result-roi">0.00</p>
+        </div>
+      </div>
+
+      <div class="chart-box" id="simChart"></div>
+    </section>
+  </main>
+
+  <!-- ================= 푸터 ================= -->
+  <footer class="main-footer">
+    <div class="container footer-inner">
+      <div class="footer-left">
+        <img src="{{ url_for('static', filename='ammo_logo.png') }}" alt="AMMO Logo" class="footer-logo">
+        <p>AI Marketing Mix Optimizer Dashboard</p>
+      </div>
+      <div class="footer-right">
+        <p>© 2025 AMMO Project</p>
+        <p>Powered by Flask · Plotly</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='chart.js') }}"></script>
 </body>
 </html>
