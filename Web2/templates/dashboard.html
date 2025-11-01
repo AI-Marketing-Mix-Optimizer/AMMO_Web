@@ -1,0 +1,111 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<!-- 분석 (검색광고 + 쇼핑라이브) -->
+<section id="analytics" class="mb-5">
+
+  <!-- 검색광고 상세 분석 -->
+  <div class="dashboard-card mb-4">
+    <div class="card-header d-flex align-items-center justify-content-between">
+      <h5>검색광고 상세 분석</h5>
+      <span class="small text-muted">검색 트렌드 / CPC / 광고비</span>
+    </div>
+
+    <div class="card-body">
+      <ul class="nav nav-tabs" id="chartTabs" role="tablist">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#chart1">검색량 추이</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#chart2">검색 점유율</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#chart3">CPC 추이</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#chart4">광고비 추이</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#chart5">히트맵</button></li>
+      </ul>
+
+      <div class="tab-content mt-4">
+        <div class="tab-pane fade show active" id="chart1"><div id="trend" class="ammo-chart"></div></div>
+        <div class="tab-pane fade" id="chart2"><div id="share" class="ammo-chart"></div></div>
+        <div class="tab-pane fade" id="chart3"><div id="gender" class="ammo-chart"></div></div>
+        <div class="tab-pane fade" id="chart4"><div id="age" class="ammo-chart"></div></div>
+        <div class="tab-pane fade" id="chart5"><div id="heat_b" class="ammo-chart"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 쇼핑라이브 성과 분석 -->
+  <div class="dashboard-card mb-4">
+    <div class="card-header d-flex align-items-center justify-content-between">
+      <h5>쇼핑라이브 성과 분석</h5>
+      <span class="small text-muted">요일별 / 프로모션별 시청자 수</span>
+    </div>
+
+    <div class="card-body">
+      <ul class="nav nav-tabs" id="liveTabs" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#liveChart1">요일별 평균 시청자 수</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#liveChart2">프로모션 여부별 비교</button>
+        </li>
+      </ul>
+
+      <div class="tab-content mt-4" id="liveTabContent">
+        <div class="tab-pane fade show active" id="liveChart1">
+          <div class="chart-container">{{ day_chart | safe }}</div>
+        </div>
+        <div class="tab-pane fade" id="liveChart2">
+          <div class="chart-container">{{ promo_chart | safe }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 시뮬레이션 -->
+<section id="simulate" class="mb-5">
+  <div class="dashboard-card mb-4">
+    <div class="card-header d-flex align-items-center justify-content-between">
+      <h5>ROI 시뮬레이션 (ElasticNet)</h5>
+      <span class="small text-muted">비용 조정에 따른 매출·ROI 변화</span>
+    </div>
+
+    <div class="card-body">
+      <div class="p-3 mb-4 bg-light rounded">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label for="searchAdCost" class="form-label">검색광고 비용 (원)</label>
+            <input type="number" id="searchAdCost" class="form-control" value="10000000">
+          </div>
+          <div class="col-md-4">
+            <label for="liveAdCost" class="form-label">라이브광고 비용 (원)</label>
+            <input type="number" id="liveAdCost" class="form-control" value="5000000">
+          </div>
+          <div class="col-md-4">
+            <label for="competitorEvent" class="form-label">경쟁사 이벤트 여부</label>
+            <select id="competitorEvent" class="form-select">
+              <option value="N" selected>없음</option>
+              <option value="Y">있음</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="row text-center mb-4">
+        <div class="col-md-6 mb-3">
+          <div class="result-box p-3">
+            <p class="mb-1 text-muted">예상 매출 변화량</p>
+            <h4 id="result-revenue">0 원</h4>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="result-box p-3">
+            <p class="mb-1 text-muted">예상 ROI 변화량</p>
+            <h4 id="result-roi">0</h4>
+          </div>
+        </div>
+      </div>
+
+      <div id="simChart"></div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMMO 마케팅 성과 예측 대시보드</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <aside class="sidebar p-4">
+            <div class="logo-section mb-5 d-flex align-items-center">
+                <span class="fs-4 fw-bold text-white">AMMO Dashboard</span>
+            </div>
+            <nav class="navigation-menu">
+                <ul class="list-unstyled">
+                    <li class="nav-item active"><a href="#" class="nav-link"><i class="fas fa-chart-line me-2"></i> 성과 분석 요약</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-calculator me-2"></i> ROI 시뮬레이션</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-shopping-cart me-2"></i> 라이브 현황</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-cogs me-2"></i> 설정 및 데이터</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content p-4">
+            <div class="top-bar d-flex justify-content-between align-items-center mb-4">
+                <h2 class="project-title">광고 마케팅 최적화 모델 (AMMO)</h2>
+                <div class="d-flex align-items-center">
+                    <span class="me-3">담당자: 3조</span>
+                    <img src="https://via.placeholder.com/30/cccccc/ffffff?text=3J" alt="Avatar" class="rounded-circle me-2" width="30" height="30">
+                </div>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-xl-6 mb-3">
+                    <div class="card chart-card h-100">
+                        <div class="card-header">
+                            <h5>💰 ROI 시뮬레이션 (ElasticNet)</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row align-items-end mb-4 p-2 bg-light rounded">
+                                <div class="col-md-4 mb-3">
+                                    <label for="searchAdCost" class="form-label">검색광고 비용 (원)</label>
+                                    <input type="number" id="searchAdCost" class="form-control" value="10000000">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="liveAdCost" class="form-label">라이브광고 비용 (원)</label>
+                                    <input type="number" id="liveAdCost" class="form-control" value="5000000">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="competitorEvent" class="form-label">경쟁사 이벤트 여부</label>
+                                    <select id="competitorEvent" class="form-select">
+                                        <option value="N" selected>없음</option>
+                                        <option value="Y">있음</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="result-box p-3 border rounded text-center">
+                                        <p class="mb-1 text-muted">예상 매출 변화량</p>
+                                        <h4 class="mb-0" id="result-revenue">0 원</h4>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="result-box p-3 border rounded text-center">
+                                        <p class="mb-1 text-muted">예상 ROI 변화량</p>
+                                        <h4 class="mb-0" id="result-roi">0</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="simChart" class="mt-4"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-6 mb-3">
+                    <div class="card chart-card h-100">
+                        <div class="card-header">
+                            <h5>📺 쇼핑라이브 성과 분석</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container mb-4">{{ day_chart | safe }}</div>
+                            <hr>
+                            <div class="chart-container">{{ promo_chart | safe }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card chart-card">
+                        <div class="card-header">
+                            <h5>🔍 검색광고 상세 분석</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <h6>1. 상대적 검색량 추이</h6>
+                                    <div id="trend" class="ammo-chart"></div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <h6>2. 검색 점유율 변화</h6>
+                                    <div id="share" class="ammo-chart"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <h6>3. CPC(클릭당 비용) 추이</h6>
+                                    <div id="gender" class="ammo-chart"></div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <h6>4. 광고비 추이</h6>
+                                    <div id="age" class="ammo-chart"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 mb-4">
+                                    <h6>5. 월별/연도별 평균 검색량 히트맵</h6>
+                                    <div id="heat_b" class="ammo-chart"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="chart.js"></script>
+</body>
+</html>
