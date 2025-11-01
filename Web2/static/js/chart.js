@@ -186,11 +186,11 @@ async function runSimulation() {
       x: labels,
       y: values,
       type: 'bar',
-      marker: { color: values.map(v => v >= 0 ? '#2ec4b6' : '#ff9f1c') },
-      text: values.map(v => v.toLocaleString()),
-      textposition: 'outside',
+      marker: {
+        color: values.map(v => v >= 0 ? '#2ec4b6' : '#ff9f1c')
+      },
       cliponaxis: false
-    };
+    };    
 
     const layout = {
       margin: { t: 30, l: 60, r: 30, b: 60 },
