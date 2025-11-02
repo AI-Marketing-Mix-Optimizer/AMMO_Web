@@ -4,20 +4,8 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   loadSearchData();
-  setupSimulationListeners();
-  runSimulation();
 });
-
-function setupSimulationListeners() {
-  const inputs = ['searchAdCost', 'liveAdCost', 'competitorEvent'];
-  inputs.forEach(id => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.addEventListener('change', runSimulation);
-      element.addEventListener('input', runSimulation);
-    }
-  });
-}
+document.getElementById('applySimulation').addEventListener('click', runSimulation);
 
 // -----------------------------
 // 검색광고 실데이터 시각화
@@ -149,65 +137,124 @@ function commonLayout() {
   };
 }
 
+// 그래프 초기화
+let simData = {
+  x: [],
+  revenue: [],
+  roi: []
+};
+
+Plotly.newPlot('simChart', [
+  {
+    x: simData.x,
+    y: simData.revenue,
+    name: '예상 매출액',
+    type: 'scatter',
+    mode: 'lines+markers',
+    line: { color: '#0077b6', width: 3 },
+    marker: { size: 8 },
+    yaxis: 'y1',
+    text: [],
+    hoverinfo: 'x+y+text'
+  },
+  {
+    x: simData.x,
+    y: simData.roi,
+    name: '예상 ROI',
+    type: 'scatter',
+    mode: 'lines+markers',
+    line: { color: '#0f9d58', width: 3 },
+    marker: { size: 8 },
+    yaxis: 'y2',
+    text: [],
+    hoverinfo: 'x+y+text'
+  }
+], {
+  margin: { t: 30, l: 60, r: 60, b: 60 },
+  paper_bgcolor: 'rgba(0,0,0,0)',
+  plot_bgcolor: 'rgba(0,0,0,0)',
+  xaxis: { title: '단계' },
+  yaxis: { title: '예상 매출액 (원)', side: 'left', showgrid: true },
+  yaxis2: { title: '예상 ROI', side: 'right', overlaying: 'y', showgrid: false },
+  legend: { orientation: 'h' }
+}, { responsive: true });
+
 // -----------------------------
 // ROI 시뮬레이션 실행
 // -----------------------------
 async function runSimulation() {
   try {
-    const searchCostValue = document.getElementById('searchAdCost').value;
-    const liveCostValue = document.getElementById('liveAdCost').value;
+    const warningEl = document.getElementById('simulation-warning');
+    warningEl.style.display = 'none'; // 초기화
+
+    // 입력값 수집
+    const baseSearch = document.getElementById('baseSearchAdCost').value;
+    const baseLive = document.getElementById('baseLiveAdCost').value;
+    const newSearch = document.getElementById('newSearchAdCost').value;
+    const newLive = document.getElementById('newLiveAdCost').value;
+
+    // 모든 칸에 값이 있는지 확인
+    if (!baseSearch || !baseLive || !newSearch || !newLive) {
+      warningEl.textContent = "모든 광고비 입력을 완료해주세요.";
+      warningEl.style.display = 'block';
+      return; // 서버 요청 중단
+    }
 
     const payload = {
-      search_ad_cost: parseFloat(searchCostValue) || 0,
-      live_ad_cost: parseFloat(liveCostValue) || 0,
-      competitor_event: document.getElementById('competitorEvent').value
+      base_search_ad_cost: parseFloat(document.getElementById('baseSearchAdCost').value) || 0,
+      base_live_ad_cost: parseFloat(document.getElementById('baseLiveAdCost').value) || 0,
+      base_competitor_event: document.getElementById('baseCompetitorEvent').value,
+      new_search_ad_cost: parseFloat(document.getElementById('newSearchAdCost').value) || 0,
+      new_live_ad_cost: parseFloat(document.getElementById('newLiveAdCost').value) || 0,
+      new_competitor_event: document.getElementById('newCompetitorEvent').value
     };
 
+    // 서버 요청
     const res = await fetch('/simulate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
+
     const r = await res.json();
     if (!r.success) return;
 
+    // 결과 표시
     document.getElementById('result-revenue').innerHTML =
-      `<b style="color:#0077b6">${Number(r.revenue_change).toLocaleString()} 원</b>`;
+      `<b style="color:#0077b6">${Number(r.new_revenue).toLocaleString()} 원</b>`;
+    document.getElementById('result-revenue-change').innerHTML =
+      `<b style="color:${r.revenue_change >= 0 ? '#2ec4b6' : '#ff9f1c'}">
+        ${r.revenue_change >= 0 ? '+' : ''}${Number(r.revenue_change).toLocaleString()} 원</b>`;
+
     document.getElementById('result-roi').innerHTML =
-      `<b style="color:#0f9d58">${Number(r.roi_change).toLocaleString()}</b>`;
+      `<b style="color:#0f9d58">${Number(r.new_roi).toFixed(2)}</b>`;
+    document.getElementById('result-roi-change').innerHTML =
+      `<b style="color:${r.roi_change >= 0 ? '#2ec4b6' : '#ff9f1c'}">
+        ${r.roi_change >= 0 ? '+' : ''}${Number(r.roi_change).toFixed(2)}</b>`;
 
-    const labels = ['매출 변화량', 'ROI 변화량'];
-    const values = [Number(r.revenue_change), Number(r.roi_change)];
-    const maxVal = Math.max(...values, 0);
-    const minVal = Math.min(...values, 0);
-    const pad = Math.max(Math.abs(maxVal), Math.abs(minVal)) * 0.2;
+    // x 좌표 추가
+    const nextIndex = simData.x.length + 1;
 
-    const trace = {
-      x: labels,
-      y: values,
-      type: 'bar',
-      marker: {
-        color: values.map(v => v >= 0 ? '#2ec4b6' : '#ff9f1c')
-      },
-      cliponaxis: false
-    };    
+    // 맨 처음 적용 시 기존값도 함께 추가
+    if (simData.x.length === 0) {
+      // 기존 값
+      simData.x.push(0);  // 첫 번째 단계: 0
+      simData.revenue.push(Number(r.base_revenue));
+      simData.roi.push(Number(r.base_roi));
+    }
 
-    const layout = {
-      margin: { t: 30, l: 60, r: 30, b: 60 },
-      paper_bgcolor: 'rgba(0,0,0,0)',
-      plot_bgcolor: 'rgba(0,0,0,0)',
-      yaxis: {
-        title: '변화량',
-        zeroline: true,
-        zerolinecolor: '#333',
-        range: [minVal - pad, maxVal + pad]
-      },
-      bargap: 0.3,
-      showlegend: false,
-      height: 420
-    };
+    // 변동값 추가
+    simData.x.push(nextIndex);
+    simData.revenue.push(Number(r.new_revenue));
+    simData.roi.push(Number(r.new_roi));
 
-    Plotly.newPlot('simChart', [trace], layout, { responsive: true });
+    // 그래프 업데이트
+    Plotly.update('simChart', {
+      x: [simData.x, simData.x],
+      y: [simData.revenue, simData.roi]
+    });
+
+
   } catch (e) {
     console.error('runSimulation() 오류:', e);
   }
