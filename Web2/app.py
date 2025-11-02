@@ -12,20 +12,25 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SEARCH_VOLUME_FILE = os.path.join(BASE_DIR, 'search_volume_total.csv')
 LIVE_INFO_FILE = os.path.join(BASE_DIR, 'live_info_B.csv')
 ELASTICNET_FILE = os.path.join(BASE_DIR, 'elasticnet_results_experiments_B.csv')
+#
+# # -----------------------------
+# # 회귀계수 로드
+# # -----------------------------
+# try:
+#     df = pd.read_csv(ELASTICNET_FILE)
+#     baseline = df[df['experiment'] == 'baseline']
+#     SEARCH_COEFF = baseline.loc[baseline['feature'] == 'search_ad_spend_est', 'beta_real'].iloc[0]
+#     LIVE_COEFF = baseline.loc[baseline['feature'] == 'live_ad_spend_est', 'beta_real'].iloc[0]
+#     EVENT_COEFF = baseline.loc[baseline['feature'] == 'competitor_event_flag', 'beta_real'].iloc[0]
+#     INTERCEPT = baseline.loc[baseline['feature'] == 'intercept', 'intercept'].iloc[0]
+# except Exception as e:
+#     print(f"[WARN] 회귀계수 로드 실패 → 더미값 사용 ({e})")
+#     SEARCH_COEFF, LIVE_COEFF, EVENT_COEFF, INTERCEPT = 1321.5, 267.8, 2.2e8, 2.57e8
 
-# -----------------------------
-# 회귀계수 로드
-# -----------------------------
-try:
-    df = pd.read_csv(ELASTICNET_FILE)
-    baseline = df[df['experiment'] == 'baseline']
-    SEARCH_COEFF = baseline.loc[baseline['feature'] == 'search_ad_spend_est', 'beta_real'].iloc[0]
-    LIVE_COEFF = baseline.loc[baseline['feature'] == 'live_ad_spend_est', 'beta_real'].iloc[0]
-    EVENT_COEFF = baseline.loc[baseline['feature'] == 'competitor_event_flag', 'beta_real'].iloc[0]
-    INTERCEPT = baseline.loc[baseline['feature'] == 'intercept', 'intercept'].iloc[0]
-except Exception as e:
-    print(f"[WARN] 회귀계수 로드 실패 → 더미값 사용 ({e})")
-    SEARCH_COEFF, LIVE_COEFF, EVENT_COEFF, INTERCEPT = 1321.5, 267.8, 2.2e8, 2.57e8
+SEARCH_COEFF = 1399.99176152645
+LIVE_COEFF = 399.270203778113
+EVENT_COEFF = 1243765335.801
+INTERCEPT = 1471759280.85189
 
 # -----------------------------
 # 쇼핑라이브 시각화 데이터
@@ -71,21 +76,39 @@ def get_search_volume():
 def simulate():
     try:
         data = request.get_json()
-        search_cost = float(data.get("search_ad_cost", 0))
-        live_cost = float(data.get("live_ad_cost", 0))
-        event_flag = 1.0 if data.get("competitor_event") == "Y" else 0.0
 
-        revenue = INTERCEPT + search_cost * SEARCH_COEFF + live_cost * LIVE_COEFF + event_flag * EVENT_COEFF
-        total_cost = search_cost + live_cost
-        roi = (revenue - total_cost) / (total_cost if total_cost > 0 else 1)
-        base_roi = INTERCEPT / 1.0
+        # 기존 (base) 입력값
+        base_search_cost = float(data.get("base_search_ad_cost", 0))
+        base_live_cost = float(data.get("base_live_ad_cost", 0))
+        base_event_flag = 1.0 if data.get("base_competitor_event") == "Y" else 0.0
+
+        # 변동 (new) 입력값
+        new_search_cost = float(data.get("new_search_ad_cost", 0))
+        new_live_cost = float(data.get("new_live_ad_cost", 0))
+        new_event_flag = 1.0 if data.get("new_competitor_event") == "Y" else 0.0
+
+        # 기존 & 변동 각각의 매출/ROI 계산
+        def calc_revenue_roi(search_cost, live_cost, event_flag):
+            revenue = INTERCEPT + search_cost * SEARCH_COEFF + live_cost * LIVE_COEFF + event_flag * EVENT_COEFF
+            total_cost = search_cost + live_cost
+            roi = (revenue - total_cost) / (total_cost if total_cost > 0 else 1)
+            return revenue, roi
+
+        base_revenue, base_roi = calc_revenue_roi(base_search_cost, base_live_cost, base_event_flag)
+        new_revenue, new_roi = calc_revenue_roi(new_search_cost, new_live_cost, new_event_flag)
+
+        # ✅ 변화량 계산
+        revenue_change = new_revenue - base_revenue
+        roi_change = new_roi - base_roi
 
         return jsonify({
             "success": True,
-            "predicted_revenue": round(max(0, revenue), 0),
-            "revenue_change": round(revenue - INTERCEPT, 0),
-            "roi": round(roi, 2),
-            "roi_change": round(roi - base_roi, 2)
+            "base_revenue": round(base_revenue, 0),
+            "new_revenue": round(new_revenue, 0),
+            "revenue_change": round(revenue_change, 0),
+            "base_roi": round(base_roi, 2),
+            "new_roi": round(new_roi, 2),
+            "roi_change": round(roi_change, 2)
         })
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 400
