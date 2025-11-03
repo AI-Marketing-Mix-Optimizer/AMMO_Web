@@ -259,3 +259,57 @@ async function runSimulation() {
     console.error('runSimulation() 오류:', e);
   }
 }
+
+// =========================
+//  보고서 생성 버튼
+// =========================
+// =========================
+//  보고서 생성 (수정본)
+// =========================
+async function generateReport(event) {
+  const btn = event?.target || document.querySelector('.btn-generate');
+  btn.disabled = true;
+  btn.innerText = "생성 중...";
+
+  try {
+    const baseSearch = parseFloat(document.getElementById('baseSearchAdCost').value) || 0;
+    const baseLive   = parseFloat(document.getElementById('baseLiveAdCost').value) || 0;
+    const newSearch  = parseFloat(document.getElementById('newSearchAdCost').value) || 0;
+    const newLive    = parseFloat(document.getElementById('newLiveAdCost').value) || 0;
+
+    // 이벤트는 변동 기준으로 사용(원하면 base로 바꿔도 됨)
+    const promo = document.getElementById('newCompetitorEvent').value; // 'Y' | 'N'
+
+    const payload = {
+      base_search_ad_cost: baseSearch,
+      base_live_ad_cost:   baseLive,
+      new_search_ad_cost:  newSearch,
+      new_live_ad_cost:    newLive,
+      competitor_event:    promo
+    };
+
+    const res = await fetch('/generate_report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const r = await res.json();
+    if (!r.success) throw new Error(r.message || "Unknown error");
+
+    // PDF 즉시 다운로드
+    const a = document.createElement("a");
+    a.href = r.download_url;
+    a.download = "report.pdf";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  } catch (err) {
+    alert("보고서 생성 실패: " + err.message);
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.innerText = "보고서 생성";
+  }
+}
+

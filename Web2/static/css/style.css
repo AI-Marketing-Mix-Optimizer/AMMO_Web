@@ -255,3 +255,29 @@ section h5 {
   .dashboard-container { padding: 15px; }
   .dashboard-card { padding: 20px; }
 }
+
+
+/* 보고서 생성 버튼 */
+.btn-generate {
+  background-color: #0096c7;
+  border: none;
+  color: white;
+  padding: 8px 18px;   /* 높이 맞춤 */
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+  height: 38px;       /* Bootstrap form-control 높이와 동일 */
+  display: flex;
+  align-items: center;
+}
+
+.btn-generate:hover {
+  background-color: #0077b6;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

@@ -62,25 +62,72 @@
   <div class="dashboard-card mb-4">
     <div class="card-header d-flex align-items-center justify-content-between">
       <h5>ROI 시뮬레이션 (ElasticNet)</h5>
+      <button class="btn-generate" onclick="generateReport(event)">보고서 생성</button>
     </div>
 
+    <!-- 기존 광고비 입력 -->
     <div class="card-body">
       <div class="p-3 mb-4 bg-light rounded">
-        <div class="row g-3">
+        <h6 class="mb-3 fw-bold">기존 광고비 입력</h6>
+        <div class="row g-3 mb-4">
           <div class="col-md-4">
-            <label for="searchAdCost" class="form-label">검색광고 비용 (원)</label>
-            <input type="number" id="searchAdCost" class="form-control" value="10000000">
+            <label for="baseSearchAdCost" class="form-label">기존 검색광고 비용 (원)</label>
+            <input type="number" id="baseSearchAdCost" class="form-control" placeholder="예: 10000000">
           </div>
           <div class="col-md-4">
-            <label for="liveAdCost" class="form-label">라이브광고 비용 (원)</label>
-            <input type="number" id="liveAdCost" class="form-control" value="5000000">
+            <label for="baseLiveAdCost" class="form-label">기존 라이브광고 비용 (원)</label>
+            <input type="number" id="baseLiveAdCost" class="form-control" placeholder="예: 5000000">
           </div>
           <div class="col-md-4">
-            <label for="competitorEvent" class="form-label">경쟁사 이벤트 여부</label>
-            <select id="competitorEvent" class="form-select">
+            <label for="baseCompetitorEvent" class="form-label">기존 경쟁사 이벤트 여부</label>
+            <select id="baseCompetitorEvent" class="form-select">
               <option value="N" selected>없음</option>
               <option value="Y">있음</option>
             </select>
+          </div>
+        </div>
+
+        <!-- 변동 광고비 입력 -->
+        <h6 class="mb-3 fw-bold">변동 광고비 입력</h6>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label for="newSearchAdCost" class="form-label">변동 검색광고 비용 (원)</label>
+            <input type="number" id="newSearchAdCost" class="form-control" placeholder="예: 12000000">
+          </div>
+          <div class="col-md-4">
+            <label for="newLiveAdCost" class="form-label">변동 라이브광고 비용 (원)</label>
+            <input type="number" id="newLiveAdCost" class="form-control" placeholder="예: 7000000">
+          </div>
+          <div class="col-md-4">
+            <label for="newCompetitorEvent" class="form-label">변동 경쟁사 이벤트 여부</label>
+            <select id="newCompetitorEvent" class="form-select">
+              <option value="N" selected>없음</option>
+              <option value="Y">있음</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 적용 버튼 -->
+      <div class="text-center mb-4">
+        <button id="applySimulation" class="btn btn-primary">적용</button>
+      </div>
+
+      <!-- 경고 메시지 -->
+      <div id="simulation-warning" class="text-danger mb-3" style="display: none;"></div>
+
+      <!-- 예상 매출 및 ROI -->
+      <div class="row text-center mb-4">
+        <div class="col-md-6 mb-3">
+          <div class="result-box p-3">
+            <p class="mb-1 text-muted">예상 매출액 (변동 후)</p>
+            <h4 id="result-revenue">0 원</h4>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="result-box p-3">
+            <p class="mb-1 text-muted">예상 ROI (변동 후)</p>
+            <h4 id="result-roi">0</h4>
           </div>
         </div>
       </div>
@@ -89,13 +136,13 @@
         <div class="col-md-6 mb-3">
           <div class="result-box p-3">
             <p class="mb-1 text-muted">예상 매출 변화량</p>
-            <h4 id="result-revenue">0 원</h4>
+            <h4 id="result-revenue-change">0 원</h4>
           </div>
         </div>
         <div class="col-md-6">
           <div class="result-box p-3">
             <p class="mb-1 text-muted">예상 ROI 변화량</p>
-            <h4 id="result-roi">0</h4>
+            <h4 id="result-roi-change">0</h4>
           </div>
         </div>
       </div>
