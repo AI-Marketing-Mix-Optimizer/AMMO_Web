@@ -135,5 +135,32 @@
     });
   });
   </script>
+<!-- 🔥 챗봇 버튼 -->
+<div id="chatbot-toggle">
+    <img src="/static/img/ammo_logo.png" id="chatbot-avatar">
+</div>
+
+<!-- 🔥 챗봇 창 -->
+<div id="chatbot-window">
+    <div class="chat-header">
+        AI 마케팅 상담봇
+        <span id="chatbot-close">✕</span>
+    </div>
+
+    <div class="chat-body" id="chat-body"></div>
+
+    <div class="chat-input-box">
+        <input id="chat-input" type="text" placeholder="여기에 질문을 입력하세요…"/>
+        <button id="chat-send">전송</button>
+    </div>
+    <div class="chat-suggestions">
+    <button class="suggest">매출을 빠르게 올릴 방법 알려줘</button>
+    <button class="suggest">광고비 배분 전략 추천해줘</button>
+    <button class="suggest">이번달 성과가 떨어진 이유는?</button>
+    <button class="suggest">가장 효율 좋은 광고 채널은?</button>
+</div>
+</div>
+
+<script src="/static/js/chatbot.js"></script>
 </body>
 </html>

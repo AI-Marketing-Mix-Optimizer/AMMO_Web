@@ -255,3 +255,110 @@ section h5 {
   .dashboard-container { padding: 15px; }
   .dashboard-card { padding: 20px; }
 }
+/* 오른쪽 하단 챗봇 버튼 */
+#chatbot-toggle {
+    position: fixed;
+    right: 25px;
+    bottom: 25px;
+    width: 65px;
+    height: 65px;
+    background: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+#chatbot-avatar {
+    width: 60%;
+    height: 60%;
+}
+
+/* 챗봇 창 */
+#chatbot-window {
+    position: fixed;
+    right: 25px;
+    bottom: 110px;
+    width: 340px;
+    height: 430px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    display: none;
+    flex-direction: column;
+    z-index: 1000;
+}
+
+.chat-header {
+    padding: 15px;
+    background: #4b79ff;
+    color: white;
+    font-weight: bold;
+    border-radius: 15px 15px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-body {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.chat-message {
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    max-width: 75%;
+}
+
+/* 사용자 메시지 */
+.user-msg {
+    background: #d5e3ff;
+    align-self: flex-end;
+}
+
+/* AI 메시지 */
+.bot-msg {
+    background: #f2f2f2;
+}
+
+/* 입력박스 */
+.chat-input-box {
+    display: flex;
+    border-top: 1px solid #ddd;
+}
+
+#chat-input {
+    flex: 1;
+    border: none;
+    padding: 10px;
+}
+
+#chat-send {
+    background: #4b79ff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+.chat-suggestions {
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    border-top: 1px solid #eee;
+}
+
+.chat-suggestions .suggest {
+    padding: 7px 10px;
+    background: #edf2ff;
+    border-radius: 8px;
+    border: 1px solid #c7d5ff;
+    cursor: pointer;
+    font-size: 13px;
+}
