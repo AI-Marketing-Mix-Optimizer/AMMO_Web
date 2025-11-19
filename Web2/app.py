@@ -2,6 +2,11 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for
 import plotly.express as px
 import pandas as pd
 import os
+import re
+import json
+
+from results_analysis import interpret_simulation_result
+from natural_language_parser import parse_user_input
 
 app = Flask(__name__)
 
@@ -87,7 +92,7 @@ def simulate():
         new_live_cost = float(data.get("new_live_ad_cost", 0))
         new_event_flag = 1.0 if data.get("new_competitor_event") == "Y" else 0.0
 
-        # 기존 & 변동 각각의 매출/ROI 계산
+        # 매출 & ROI 계산
         def calc_revenue_roi(search_cost, live_cost, event_flag):
             revenue = INTERCEPT + search_cost * SEARCH_COEFF + live_cost * LIVE_COEFF + event_flag * EVENT_COEFF
             total_cost = search_cost + live_cost
@@ -96,11 +101,10 @@ def simulate():
 
         base_revenue, base_roi = calc_revenue_roi(base_search_cost, base_live_cost, base_event_flag)
         new_revenue, new_roi = calc_revenue_roi(new_search_cost, new_live_cost, new_event_flag)
-
-        # ✅ 변화량 계산
         revenue_change = new_revenue - base_revenue
         roi_change = new_roi - base_roi
 
+        #  LLM 해석 제거 — 계산만 반환
         return jsonify({
             "success": True,
             "base_revenue": round(base_revenue, 0),
@@ -110,8 +114,118 @@ def simulate():
             "new_roi": round(new_roi, 2),
             "roi_change": round(roi_change, 2)
         })
+
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 400
+
+
+# -----------------------------
+# chatbot API
+# -----------------------------
+def extract_json(text: str):
+    # ```json 등 제거
+    text = re.sub(r"```json", "", text)
+    text = re.sub(r"```", "", text)
+
+    # JSON { } 블록만 추출
+    match = re.search(r"\{[\s\S]*\}", text)
+    if match:
+        return match.group(0).strip()
+    return text
+
+@app.route("/chat", methods=["POST"])
+def chat():
+    data = request.get_json()
+    user_msg = data.get("message", "")
+
+    # 1) 자연어 → JSON 파싱
+    parsed_json = parse_user_input(user_msg)
+    clean_json = extract_json(parsed_json)
+
+    try:
+        parsed = json.loads(clean_json)
+    except:
+        return jsonify({"reply": "자연어 파싱 JSON 오류\n" + parsed_json})
+
+    # 2) JSON 값 추출 (원본 값)
+    base_search = float(parsed.get("기존 검색광고 예산", 0))
+    base_live = float(parsed.get("기존 라이브광고 예산", 0))
+    new_search = float(parsed.get("변동 검색광고 예산", 0))
+    new_live = float(parsed.get("변동 라이브광고 예산", 0))
+    promo_flag = int(parsed.get("프로모션 여부", 0))
+
+    # 3) reply에 보여줄 간단 계산만 서버에서 처리
+    def calc_simple(search_cost, live_cost, event_flag):
+        revenue = INTERCEPT \
+                  + search_cost * SEARCH_COEFF \
+                  + live_cost * LIVE_COEFF \
+                  + event_flag * EVENT_COEFF
+        total_cost = search_cost + live_cost
+        roi = (revenue - total_cost) / (total_cost if total_cost > 0 else 1)
+        return revenue, roi
+
+    base_revenue, base_roi = calc_simple(base_search, base_live, promo_flag)
+    new_revenue, new_roi = calc_simple(new_search, new_live, promo_flag)
+
+    revenue_change = new_revenue - base_revenue
+    roi_change = new_roi - base_roi
+
+    # 4) 시뮬레이션 링크(URL 파라미터로 raw 값만 전달)
+    sim_url = url_for(
+        'chat_simulate',
+        base_search=base_search,
+        base_live=base_live,
+        new_search=new_search,
+        new_live=new_live,
+        promo_flag=promo_flag
+    )
+
+    # 5) 챗봇 reply 생성 (서버 계산 결과)
+    reply = f"""
+        예산 시뮬레이션 결과<br><br>
+
+        ■ 총 예산: {parsed.get('총 예산', 0):,}원<br>
+        ■ 경쟁사 프로모션: {'YES' if promo_flag else 'NO'}<br><br>
+
+        ■ 매출 변화: {revenue_change:,.0f}원<br>
+        ■ ROI 변화: {roi_change:.2f}<br><br>
+
+        <a href="{sim_url}" target="_blank">시뮬레이션 화면으로 이동</a>
+    """
+    
+    return jsonify({
+        "reply": reply
+    })
+
+
+# -----------------------------
+# LLM 해석
+# -----------------------------
+@app.route("/interpret", methods=["POST"])
+def interpret():
+    try:
+        data = request.get_json()
+        coeffs = {
+            "BETA_0": INTERCEPT,
+            "BETA_SEARCH": SEARCH_COEFF,
+            "BETA_LIVE": LIVE_COEFF,
+            "BETA_EVENT": EVENT_COEFF
+        }
+        text = interpret_simulation_result(
+            data["base_search_ad_cost"],
+            data["base_live_ad_cost"],
+            data["new_search_ad_cost"],
+            data["new_live_ad_cost"],
+            data["base_revenue"],
+            data["new_revenue"],
+            data["base_roi"],
+            data["new_roi"],
+            coeffs
+        )
+        return jsonify({"success": True, "analysis": text})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 400
+
 
 # -----------------------------
 # 페이지 라우팅
@@ -127,6 +241,59 @@ def dashboard():
     return render_template("dashboard.html",
                            day_chart=day_chart,
                            promo_chart=promo_chart)
+
+# URL 누르면 실행 chat-simulate 새창 생성
+@app.route("/chat-simulate")
+def chat_simulate():
+    # URL 파라미터 읽기
+    base_search = request.args.get("base_search", type=float, default=0)
+    base_live = request.args.get("base_live", type=float, default=0)
+    new_search = request.args.get("new_search", type=float, default=0)
+    new_live = request.args.get("new_live", type=float, default=0)
+    promo_flag = request.args.get("promo_flag", type=int, default=0)
+
+    # 기존 시뮬레이션 계산 로직 재사용
+    def calc_revenue_roi(search_cost, live_cost, event_flag):
+        revenue = INTERCEPT \
+                  + search_cost * SEARCH_COEFF \
+                  + live_cost * LIVE_COEFF \
+                  + event_flag * EVENT_COEFF
+
+        total_cost = search_cost + live_cost
+        roi = (revenue - total_cost) / (total_cost if total_cost > 0 else 1)
+        return revenue, roi
+
+    # 기존 시나리오 & 변경 시나리오
+    base_revenue, base_roi = calc_revenue_roi(base_search, base_live, promo_flag)
+    new_revenue, new_roi = calc_revenue_roi(new_search, new_live, promo_flag)
+
+    # 변화값 계산
+    revenue_change = new_revenue - base_revenue
+    roi_change = new_roi - base_roi
+
+    # 템플릿 렌더링
+    return render_template(
+        "chat_simulate.html",
+        # 계산 값 전달 (챗봇 간단 문자용)
+        base_revenue=round(base_revenue),
+        base_roi=round(base_roi, 2),
+        new_revenue=round(new_revenue),
+        new_roi=round(new_roi, 2),
+        revenue_change=round(revenue_change),
+        roi_change=round(roi_change, 2),
+        # 파싱 값 전달
+        base_search=base_search,
+        base_live=base_live,
+        new_search=new_search,
+        new_live=new_live,
+        promo_flag=promo_flag,
+        # 계수 전달
+        INTERCEPT=INTERCEPT,
+        SEARCH_COEFF=SEARCH_COEFF,
+        LIVE_COEFF=LIVE_COEFF,
+        EVENT_COEFF=EVENT_COEFF
+    )
+
 
 # -----------------------------
 # 실행

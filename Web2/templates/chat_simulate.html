@@ -1,0 +1,103 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<section id="simulate" class="mb-5">
+  <div class="dashboard-card mb-4">
+    <div class="card-header">
+      <h5>ROI 시뮬레이션</h5>
+    </div>
+
+    <div class="card-body">
+
+      <!-- 결과 박스 -->
+      <div class="row text-center mb-4">
+        <div class="col-md-6">
+          <p class="text-muted">예상 매출액 (변경 후)</p>
+          <h4 id="result-revenue"></h4>
+        </div>
+        <div class="col-md-6">
+          <p class="text-muted">예상 ROI (변경 후)</p>
+          <h4 id="result-roi"></h4>
+        </div>
+      </div>
+
+      <div class="row text-center mb-4">
+        <div class="col-md-6">
+          <p class="text-muted">매출 변화량</p>
+          <h4 id="result-revenue-change"></h4>
+        </div>
+        <div class="col-md-6">
+          <p class="text-muted">ROI 변화량</p>
+          <h4 id="result-roi-change"></h4>
+        </div>
+      </div>
+
+      <div id="simChart"></div>
+
+      <textarea id="result_analysis" class="form-control mt-4" rows="4"
+                placeholder="결과 해석이 여기에 표시됩니다"></textarea>
+
+    </div>
+  </div>
+</section>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="/static/js/chatbot.js"></script>
+
+<script>
+  // 서버와 동일한 회귀계수 사용
+  const INTERCEPT = Number("{{ INTERCEPT }}");
+  const SEARCH_COEFF = Number("{{ SEARCH_COEFF }}");
+  const LIVE_COEFF = Number("{{ LIVE_COEFF }}");
+  const EVENT_COEFF = Number("{{ EVENT_COEFF }}");
+
+  const promo_flag = Number("{{ promo_flag }}") || 0;
+  const base_search = Number("{{ base_search }}") || 0;
+  const base_live   = Number("{{ base_live }}")  || 0;
+  const new_search  = Number("{{ new_search }}") || 0;
+  const new_live    = Number("{{ new_live }}")  || 0;
+
+  // 서버 계산식과 동일한 함수
+  function calcRevenue(costS, costL, eventFlag) {
+      const revenue = 
+          INTERCEPT
+          + SEARCH_COEFF * costS
+          + LIVE_COEFF * costL
+          + EVENT_COEFF * eventFlag;
+
+      const totalCost = costS + costL;
+      const roi = (revenue - totalCost) / (totalCost !== 0 ? totalCost : 1);
+
+      return { revenue, roi };
+  }
+
+  // 기존 서버 계산식 100% 동일하게 계산
+  const base = calcRevenue(base_search, base_live, promo_flag);
+  const mod  = calcRevenue(new_search, new_live, promo_flag);
+
+  const baseRevenue = base.revenue;
+  const newRevenue  = mod.revenue;
+  const baseRoi     = base.roi;
+  const newRoi      = mod.roi;
+
+  const revenueChange = newRevenue - baseRevenue;
+  const roiChange = newRoi - baseRoi;
+
+  // 시뮬레이터 출력 하는 함수
+  viewSimulation({
+      baseRevenue,
+      newRevenue,
+      baseRoi,
+      newRoi,
+      revenueChange,
+      roiChange,
+      base_search_ad_cost: base_search,
+      base_live_ad_cost: base_live,
+      new_search_ad_cost: new_search,
+      new_live_ad_cost: new_live,
+      promo_flag
+  });
+</script>
+
+
+{% endblock %}

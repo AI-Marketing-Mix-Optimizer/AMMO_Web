@@ -108,11 +108,11 @@ async function loadSearchData() {
       return { year: parts[0], month: parts[1], value: d.rel };
     });
     const years = [...new Set(parsed.map(d => d.year))].sort();
-    const months = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+    const months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
     const z = years.map(y =>
       months.map(m => {
         const vals = parsed.filter(d => d.year === y && d.month === m).map(d => d.value);
-        return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
+        return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
       })
     );
 
@@ -185,21 +185,9 @@ Plotly.newPlot('simChart', [
 async function runSimulation() {
   try {
     const warningEl = document.getElementById('simulation-warning');
-    warningEl.style.display = 'none'; // 초기화
+    warningEl.style.display = 'none';
 
     // 입력값 수집
-    const baseSearch = document.getElementById('baseSearchAdCost').value;
-    const baseLive = document.getElementById('baseLiveAdCost').value;
-    const newSearch = document.getElementById('newSearchAdCost').value;
-    const newLive = document.getElementById('newLiveAdCost').value;
-
-    // 모든 칸에 값이 있는지 확인
-    if (!baseSearch || !baseLive || !newSearch || !newLive) {
-      warningEl.textContent = "모든 광고비 입력을 완료해주세요.";
-      warningEl.style.display = 'block';
-      return; // 서버 요청 중단
-    }
-
     const payload = {
       base_search_ad_cost: parseFloat(document.getElementById('baseSearchAdCost').value) || 0,
       base_live_ad_cost: parseFloat(document.getElementById('baseLiveAdCost').value) || 0,
@@ -209,7 +197,9 @@ async function runSimulation() {
       new_competitor_event: document.getElementById('newCompetitorEvent').value
     };
 
-    // 서버 요청
+    // -----------------------------
+    // ① 그래프 즉시 계산 요청
+    // -----------------------------
     const res = await fetch('/simulate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -219,7 +209,7 @@ async function runSimulation() {
     const r = await res.json();
     if (!r.success) return;
 
-    // 결과 표시
+    //  그래프와 수치 먼저 표시
     document.getElementById('result-revenue').innerHTML =
       `<b style="color:#0077b6">${Number(r.new_revenue).toLocaleString()} 원</b>`;
     document.getElementById('result-revenue-change').innerHTML =
@@ -232,30 +222,61 @@ async function runSimulation() {
       `<b style="color:${r.roi_change >= 0 ? '#2ec4b6' : '#ff9f1c'}">
         ${r.roi_change >= 0 ? '+' : ''}${Number(r.roi_change).toFixed(2)}</b>`;
 
-    // x 좌표 추가
+    // 그래프 업데이트
     const nextIndex = simData.x.length + 1;
-
-    // 맨 처음 적용 시 기존값도 함께 추가
     if (simData.x.length === 0) {
-      // 기존 값
-      simData.x.push(0);  // 첫 번째 단계: 0
+      simData.x.push(0);
       simData.revenue.push(Number(r.base_revenue));
       simData.roi.push(Number(r.base_roi));
     }
-
-    // 변동값 추가
     simData.x.push(nextIndex);
     simData.revenue.push(Number(r.new_revenue));
     simData.roi.push(Number(r.new_roi));
-
-    // 그래프 업데이트
     Plotly.update('simChart', {
       x: [simData.x, simData.x],
       y: [simData.revenue, simData.roi]
     });
 
+    // -----------------------------
+    // ② LLM 해석 비동기 호출 (그래프 그린 후)
+    // -----------------------------
+    const textarea = document.getElementById('result_analysis');
+    textarea.value = " 결과 해석을 생성 중입니다... 잠시만 기다려주세요.";
+    textarea.style.color = "#888";
+
+    // 로딩 애니메이션 추가
+    textarea.classList.add('loading');
+
+    fetch('/interpret', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...payload,
+        base_revenue: r.base_revenue,
+        new_revenue: r.new_revenue,
+        base_roi: r.base_roi,
+        new_roi: r.new_roi
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        textarea.classList.remove('loading');
+        if (data.success) {
+          textarea.value = data.analysis.trim();
+          textarea.style.color = "#000";
+          textarea.style.height = 'auto';
+          textarea.style.height = textarea.scrollHeight + 'px';
+        } else {
+          textarea.value = "결과 해석 생성 실패: " + data.message;
+        }
+      })
+      .catch(err => {
+        textarea.value = "결과 해석 오류: " + err.message;
+      });
 
   } catch (e) {
     console.error('runSimulation() 오류:', e);
+    textarea.classList.remove('loading');
+    textarea.value = "결과 해석 오류: " + err.message;
   }
 }

@@ -13,6 +13,8 @@
 
   <!-- Custom Style -->
   <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+
+  {% block extra_css %}{% endblock %}
 </head>
 
 <body>
@@ -162,5 +164,6 @@
 </div>
 
 <script src="/static/js/chatbot.js"></script>
+{% block extra_js %}{% endblock %}
 </body>
 </html>
