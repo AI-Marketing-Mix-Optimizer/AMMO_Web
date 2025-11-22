@@ -258,8 +258,8 @@ section h5 {
 /* 오른쪽 하단 챗봇 버튼 */
 #chatbot-toggle {
     position: fixed;
-    right: 25px;
-    bottom: 25px;
+    right: 50px;
+    bottom: 50px;
     width: 65px;
     height: 65px;
     background: #ffffff;
@@ -280,8 +280,8 @@ section h5 {
 /* 챗봇 창 */
 #chatbot-window {
     position: fixed;
-    right: 25px;
-    bottom: 110px;
+    right: 50px;
+    bottom: 135px;
     width: 430px;
     height: 500px;
     background: white;
@@ -369,4 +369,13 @@ section h5 {
   background-position: center;
   background-size: 32px 32px;
   opacity: 0.7;
+}
+
+#result_analysis {
+    min-height: 200px;
+    max-height: 500px;
+    overflow-y: auto;
+    resize: vertical;
+    line-height: 1.5;
+    font-size: 0.95rem;
 }

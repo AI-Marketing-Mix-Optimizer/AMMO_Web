@@ -130,11 +130,26 @@ async function viewSimulation({
         yaxis2: { title: 'ROI', overlaying: 'y', side: 'right' }
     });
 
-    // ----- interpret API -----
+    // ----- 해석 텍스트 영역 -----
     const textarea = document.getElementById("result_analysis");
     textarea.value = "LLM이 결과를 분석하는 중입니다...";
     textarea.classList.add("loading");
 
+    // ----- 세션 캐시 Key 구성 -----
+    const cacheKey =
+        `analysis_${base_search_ad_cost}_${base_live_ad_cost}_${new_search_ad_cost}_${new_live_ad_cost}_${promo_flag}`;
+
+    // ====== 1) 세션 스토리지에 캐시가 있으면 그대로 표시 ======
+    const cached = sessionStorage.getItem(cacheKey);
+
+    if (cached) {
+        console.log("세션 캐시 적용 — interpret API 호출 스킵");
+        textarea.classList.remove("loading");
+        textarea.value = cached;
+        return;   // API 호출 중단
+    }
+
+    // ====== 2) 캐시 없으면 interpret API 호출 ======
     const res = await fetch("/interpret", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -158,6 +173,10 @@ async function viewSimulation({
 
     if (data.success) {
         textarea.value = data.analysis;
+
+        // ====== 세션 캐시에 저장 ======
+        sessionStorage.setItem(cacheKey, data.analysis);
+
     } else {
         textarea.value = "해석 실패: " + data.message;
     }
