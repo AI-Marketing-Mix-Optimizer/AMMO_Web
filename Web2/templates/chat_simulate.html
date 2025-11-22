@@ -52,35 +52,38 @@
 <script src="/static/js/chatbot.js"></script>
 
 <script>
-  // 서버와 동일한 회귀계수 사용
+  // 서버와 동일한 회귀계수
   const INTERCEPT = Number("{{ INTERCEPT }}");
   const SEARCH_COEFF = Number("{{ SEARCH_COEFF }}");
   const LIVE_COEFF = Number("{{ LIVE_COEFF }}");
   const EVENT_COEFF = Number("{{ EVENT_COEFF }}");
 
-  const promo_flag = Number("{{ promo_flag }}") || 0;
+  // 서버에서 넘어온 값
   const base_search = Number("{{ base_search }}") || 0;
   const base_live   = Number("{{ base_live }}")  || 0;
   const new_search  = Number("{{ new_search }}") || 0;
   const new_live    = Number("{{ new_live }}")  || 0;
 
-  // 서버 계산식과 동일한 함수
+  // 프로모션 (기존 / 변동)
+  const promo_flag_base = Number("{{ promo_flag_base }}") || 0;
+  const promo_flag_new  = Number("{{ promo_flag_new }}") || 0;
+
+  // 계산 함수 (서버와 동일)
   function calcRevenue(costS, costL, eventFlag) {
-      const revenue = 
-          INTERCEPT
-          + SEARCH_COEFF * costS
-          + LIVE_COEFF * costL
-          + EVENT_COEFF * eventFlag;
+      const revenue =
+          INTERCEPT +
+          SEARCH_COEFF * costS +
+          LIVE_COEFF * costL +
+          EVENT_COEFF * eventFlag;
 
       const totalCost = costS + costL;
       const roi = (revenue - totalCost) / (totalCost !== 0 ? totalCost : 1);
-
       return { revenue, roi };
   }
 
-  // 기존 서버 계산식 100% 동일하게 계산
-  const base = calcRevenue(base_search, base_live, promo_flag);
-  const mod  = calcRevenue(new_search, new_live, promo_flag);
+  // 매출액 계산
+  const base = calcRevenue(base_search, base_live, promo_flag_base);
+  const mod  = calcRevenue(new_search, new_live, promo_flag_new);
 
   const baseRevenue = base.revenue;
   const newRevenue  = mod.revenue;
@@ -90,7 +93,7 @@
   const revenueChange = newRevenue - baseRevenue;
   const roiChange = newRoi - baseRoi;
 
-  // 시뮬레이터 출력 하는 함수
+  // 시뮬레이터 출력 실행
   viewSimulation({
       baseRevenue,
       newRevenue,
@@ -102,7 +105,8 @@
       base_live_ad_cost: base_live,
       new_search_ad_cost: new_search,
       new_live_ad_cost: new_live,
-      promo_flag
+      base_promo_flag: promo_flag_base,
+      new_promo_flag: promo_flag_new
   });
 </script>
 

@@ -75,16 +75,17 @@ async function viewSimulation({
     base_live_ad_cost,
     new_search_ad_cost,
     new_live_ad_cost,
-    promo_flag
+    base_promo_flag, 
+    new_promo_flag
 }) {
 
     // ----- 화면 숫자 표시 -----
     document.getElementById("result-revenue").innerHTML =
-        `<b style="color:#0077b6">${newRevenue.toLocaleString()} 원</b>`;
+        `<b style="color:#0077b6">${Math.round(newRevenue).toLocaleString()} 원</b>`;
 
     document.getElementById("result-revenue-change").innerHTML =
         `<b style="color:${revenueChange >= 0 ? '#2ec4b6' : '#ff9f1c'}">
-            ${revenueChange >= 0 ? '+' : ''}${revenueChange.toLocaleString()} 원
+            ${revenueChange >= 0 ? '+' : ''}${Math.round(revenueChange).toLocaleString()} 원
         </b>`;
 
     document.getElementById("result-roi").innerHTML =
@@ -135,21 +136,21 @@ async function viewSimulation({
     textarea.value = "LLM이 결과를 분석하는 중입니다...";
     textarea.classList.add("loading");
 
-    // ----- 세션 캐시 Key 구성 -----
+    // 캐시 Key 생성
     const cacheKey =
-        `analysis_${base_search_ad_cost}_${base_live_ad_cost}_${new_search_ad_cost}_${new_live_ad_cost}_${promo_flag}`;
+        `analysis_${base_search_ad_cost}_${base_live_ad_cost}_${new_search_ad_cost}_${new_live_ad_cost}_${base_promo_flag}_${new_promo_flag}`;
 
-    // ====== 1) 세션 스토리지에 캐시가 있으면 그대로 표시 ======
+    // ====== 세션 스토리지 캐시가 있으면 그대로 표시 ======
     const cached = sessionStorage.getItem(cacheKey);
 
     if (cached) {
         console.log("세션 캐시 적용 — interpret API 호출 스킵");
         textarea.classList.remove("loading");
         textarea.value = cached;
-        return;   // API 호출 중단
+        return;
     }
 
-    // ====== 2) 캐시 없으면 interpret API 호출 ======
+    // ====== interpret API 호출 ======
     const res = await fetch("/interpret", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -164,7 +165,8 @@ async function viewSimulation({
             base_live_ad_cost,
             new_search_ad_cost,
             new_live_ad_cost,
-            promo_flag
+            base_promo_flag,
+            new_promo_flag 
         })
     });
 
@@ -174,7 +176,7 @@ async function viewSimulation({
     if (data.success) {
         textarea.value = data.analysis;
 
-        // ====== 세션 캐시에 저장 ======
+        // 프로모션 상태 포함 저장
         sessionStorage.setItem(cacheKey, data.analysis);
 
     } else {
