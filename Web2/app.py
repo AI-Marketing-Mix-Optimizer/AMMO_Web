@@ -139,17 +139,14 @@ def chat():
     data = request.get_json()
     user_msg = data.get("message", "")
 
-    # ------------------------------------------------------
-    # 1) 먼저 intent 분류
-    # ------------------------------------------------------
+    # 1) intent 분류
     from router import classify_intent   # 라우터 파일에서 가져옴
     intent = classify_intent(user_msg)
 
     print(f"[INTENT] {intent}")
 
-    # ------------------------------------------------------
-    # 2) intent가 parse_budget이 아닐 경우 → 다른 답변 처리
-    # ------------------------------------------------------
+
+    # 2) intent가 parse_budget이 아닐때
     if intent != "parse_budget":
         # 분석 질문
         if intent == "analysis_question":
@@ -178,10 +175,7 @@ def chat():
         return jsonify({"reply": "이해하지 못한 요청입니다. 예산/프로모션/광고 관련 질문을 다시 입력해주세요."})
 
 
-    # ------------------------------------------------------
-    # 3) 여기 도달했다 → intent = parse_budget → 기존 JSON 파싱 로직 그대로 수행
-    # ------------------------------------------------------
-
+    # 3) intent = parse_budget
     parsed_json = parse_user_input(user_msg)
     clean_json = extract_json(parsed_json)
 
@@ -257,10 +251,7 @@ def chat():
     return jsonify({"reply": reply})
 
 
-
-# -----------------------------
 # LLM 해석
-# -----------------------------
 @app.route("/interpret", methods=["POST"])
 def interpret():
     try:

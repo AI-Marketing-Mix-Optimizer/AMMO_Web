@@ -9,9 +9,7 @@ from util import llm_call, extract_xml
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# -------------------------------
-# 1) Intent Routes 정의
-# -------------------------------
+# Intent Routes 정의
 intent_routes = {
     "parse_budget": """
         너는 사용자의 입력이 '예산, 배분, 프로모션, 검색광고, 라이브, 얼마, 원, 억, 증가/감소' 등
@@ -30,9 +28,7 @@ intent_routes = {
 }
 
 
-# -------------------------------
-# 2) Intent 분류 함수
-# -------------------------------
+# Intent 분류 함수
 def classify_intent(user_input: str) -> str:
     options = list(intent_routes.keys())
 
@@ -63,9 +59,7 @@ def classify_intent(user_input: str) -> str:
     return selected
 
 
-# -------------------------------
 # 3) Smart Router (메인 실행)
-# -------------------------------
 def smart_router(user_input: str):
     route = classify_intent(user_input)
     print(f"\n[라우팅 결과] {route}")
@@ -105,13 +99,3 @@ def smart_router(user_input: str):
     # 알 수 없는 경우
     else:
         return "요청을 이해하지 못했습니다. 예산/분석 관련 질문으로 다시 입력해주세요."
-
-
-# -------------------------------
-# 단독 실행 테스트
-# -------------------------------
-if __name__ == "__main__":
-    while True:
-        user_input = input("\n사용자 입력: ")
-        result = smart_router(user_input)
-        print("\n[결과]\n", result)
