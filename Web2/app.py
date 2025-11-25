@@ -133,12 +133,55 @@ def extract_json(text: str):
         return match.group(0).strip()
     return text
 
+from util import llm_call
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.get_json()
     user_msg = data.get("message", "")
 
-    # 1) 자연어 → JSON 파싱
+    # ------------------------------------------------------
+    # 1) 먼저 intent 분류
+    # ------------------------------------------------------
+    from router import classify_intent   # 라우터 파일에서 가져옴
+    intent = classify_intent(user_msg)
+
+    print(f"[INTENT] {intent}")
+
+    # ------------------------------------------------------
+    # 2) intent가 parse_budget이 아닐 경우 → 다른 답변 처리
+    # ------------------------------------------------------
+    if intent != "parse_budget":
+        # 분석 질문
+        if intent == "analysis_question":
+            analysis_prompt = f"""
+            너는 광고 성과 분석 전문가이다.
+            사용자 질문에 대해 광고 성과/ROI/예산/전략 관점에서 정확히 분석하라.
+
+            사용자 질문:
+            {user_msg}
+            """
+            answer = llm_call(analysis_prompt)
+            return jsonify({"reply": answer})
+
+        # 일반 대화
+        if intent == "general_chat":
+            chat_prompt = f"""
+            너는 친절한 AI 비서이다.
+            사용자 메시지에 자연스럽고 인간적인 말투로 답하라.
+
+            메시지:
+            {user_msg}
+            """
+            return jsonify({"reply": llm_call(chat_prompt)})
+
+        # 기타/unknown
+        return jsonify({"reply": "이해하지 못한 요청입니다. 예산/프로모션/광고 관련 질문을 다시 입력해주세요."})
+
+
+    # ------------------------------------------------------
+    # 3) 여기 도달했다 → intent = parse_budget → 기존 JSON 파싱 로직 그대로 수행
+    # ------------------------------------------------------
+
     parsed_json = parse_user_input(user_msg)
     clean_json = extract_json(parsed_json)
 
@@ -147,15 +190,16 @@ def chat():
     except:
         return jsonify({"reply": "자연어 파싱 JSON 오류\n" + parsed_json})
 
-    # 2) JSON 값 추출
+    # 4) JSON 값 추출 (기존 그대로)
     base_search = float(parsed.get("기존 검색광고 예산", 0))
     base_live = float(parsed.get("기존 라이브광고 예산", 0))
     base_event_flag = int(parsed.get("기존 프로모션 여부", 0))
+
     new_search = float(parsed.get("변동 검색광고 예산", 0))
     new_live = float(parsed.get("변동 라이브광고 예산", 0))
     new_event_flag = int(parsed.get("변동 프로모션 여부", 0))
 
-    # 3) 계산 로직
+    # 5) 계산 함수 (기존 그대로)
     def calc_revenue_roi(search_cost, live_cost, event_flag):
         revenue = (
             INTERCEPT
@@ -169,7 +213,6 @@ def chat():
 
     # 기존 시나리오
     base_revenue, base_roi = calc_revenue_roi(base_search, base_live, base_event_flag)
-
     # 변경 시나리오
     new_revenue, new_roi = calc_revenue_roi(new_search, new_live, new_event_flag)
 
@@ -177,7 +220,7 @@ def chat():
     revenue_change = new_revenue - base_revenue
     roi_change = new_roi - base_roi
 
-    # 4) 시뮬레이션 URL 전송 (기존/변동 모두)
+    # 6) 시뮬레이션 URL
     sim_url = url_for(
         'chat_simulate',
         base_search=base_search,
@@ -187,19 +230,22 @@ def chat():
         new_live=new_live,
         new_event=new_event_flag
     )
+
     TAP = "&nbsp;" * 5
-    # 5) reply 응답
+
     reply = f"""
         예산 시뮬레이션 결과<br><br>
 
         ■ 총 예산: {parsed.get('총 예산', 0):,}원<br>
         
         ■ 기존 예산<br> 
-        {TAP}검색광고: {base_search:,.0f}원<br> {TAP}라이브광고: {base_live:,.0f}원<br>
+        {TAP}검색광고: {base_search:,.0f}원<br> 
+        {TAP}라이브광고: {base_live:,.0f}원<br>
         ■ 기존 프로모션: {'YES' if base_event_flag else 'NO'}<br>
         
         ■ 변동 예산<br>
-        {TAP}검색광고: {new_search:,.0f}원<br> {TAP}라이브광고: {new_live:,.0f}원<br>
+        {TAP}검색광고: {new_search:,.0f}원<br> 
+        {TAP}라이브광고: {new_live:,.0f}원<br>
         ■ 변동 프로모션: {'YES' if new_event_flag else 'NO'}<br><br>
         
         ■ 매출 변화: {revenue_change:,.0f}원<br>
