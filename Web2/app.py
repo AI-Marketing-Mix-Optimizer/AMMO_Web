@@ -5,9 +5,10 @@ import os
 import re
 import json
 
+from util import llm_call
 from results_analysis import interpret_simulation_result
 from natural_language_parser import parse_user_input
-
+from router import smart_router
 app = Flask(__name__)
 
 # -----------------------------
@@ -133,7 +134,7 @@ def extract_json(text: str):
         return match.group(0).strip()
     return text
 
-from util import llm_call
+
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.get_json()
@@ -144,7 +145,6 @@ def chat():
     intent = classify_intent(user_msg)
 
     print(f"[INTENT] {intent}")
-
 
     # 2) intent가 parse_budget이 아닐때
     if intent != "parse_budget":
@@ -157,8 +157,9 @@ def chat():
             사용자 질문:
             {user_msg}
             """
-            answer = llm_call(analysis_prompt)
-            return jsonify({"reply": answer})
+            answer = smart_router(analysis_prompt, intent)
+            reply = answer.replace("\n", "<br>")
+            return jsonify({"reply": reply})
 
         # 일반 대화
         if intent == "general_chat":
@@ -169,7 +170,9 @@ def chat():
             메시지:
             {user_msg}
             """
-            return jsonify({"reply": llm_call(chat_prompt)})
+            answer = smart_router(chat_prompt, intent)
+            reply = answer.replace("\n", "<br>")
+            return jsonify({"reply": reply})
 
         # 기타/unknown
         return jsonify({"reply": "이해하지 못한 요청입니다. 예산/프로모션/광고 관련 질문을 다시 입력해주세요."})

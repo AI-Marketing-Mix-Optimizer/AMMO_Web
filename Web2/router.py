@@ -5,6 +5,7 @@ import os
 from openai import OpenAI
 from dotenv import load_dotenv
 from util import llm_call, extract_xml
+from natural_language_parser import parse_user_input
 
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -60,21 +61,22 @@ def classify_intent(user_input: str) -> str:
 
 
 # 3) Smart Router (메인 실행)
-def smart_router(user_input: str):
-    route = classify_intent(user_input)
-    print(f"\n[라우팅 결과] {route}")
-
+def smart_router(user_input: str, intent: str):
     # 예산/프로모션 파싱 → natural_language_parser 호출
-    if route == "parse_budget":
-        from natural_language_parser import parse_user_input
+    if intent == "parse_budget":
         return parse_user_input(user_input)
 
     # 분석 질문 → 분석 모델 호출
-    elif route == "analysis_question":
+    elif intent == "analysis_question":
         analysis_prompt = f"""
         너는 광고 예산 및 퍼포먼스 분석 전문 어시스턴트이다.
-        정확하고 숫자 기반으로 설명하라.
-        고객이 쉽게 이해할 수 있게 글의 형식을 가독성있게 작성하라.
+
+        # 출력 형식 규칙 (중요)
+        1) 절대 한 문단으로 뭉치지 말 것.
+        2) 각 번호는 반드시 **줄바꿈 1회 후 시작**할 것.
+        3) 번호 안의 하위 bullet은 앞에 '-'를 붙이고 줄바꿈을 넣을 것.
+        4) 문장 끝마다 자연스러운 개행을 유지할 것.
+        5) HTML이나 Markdown 없이 **순수 텍스트 줄바꿈**만 사용한다.
 
         질문:
         {user_input}
@@ -85,7 +87,7 @@ def smart_router(user_input: str):
         return llm_call(analysis_prompt)
 
     # 일반 대화
-    elif route == "general_chat":
+    elif intent == "general_chat":
         chat_prompt = f"""
         너는 친절한 일반 대화 챗봇이다.
 
