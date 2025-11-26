@@ -304,9 +304,11 @@ section h5 {
 }
 
 .chat-body {
-    flex: 1;
-    padding: 10px;
-    overflow-y: auto;
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .chat-message {
@@ -318,13 +320,16 @@ section h5 {
 
 /* 사용자 메시지 */
 .user-msg {
-    background: #d5e3ff;
-    align-self: flex-end;
+  align-self: flex-end;
+  background: #d5e3ff;
+  margin-left: auto;
 }
 
-/* AI 메시지 */
+/* 챗봇 메시지 */
 .bot-msg {
-    background: #f2f2f2;
+  align-self: flex-start;
+  background: #f2f2f2;
+  margin-right: auto;
 }
 
 /* 입력박스 */
@@ -379,3 +384,34 @@ section h5 {
     line-height: 1.5;
     font-size: 0.95rem;
 }
+
+/* 챗봇 타이핑 표시 */
+.bot-typing {
+  align-self: flex-start;
+  background: #f2f2f2;
+  margin-right: auto;
+  padding: 8px 12px;
+  border-radius: 10px;
+  display: flex;
+  gap: 4px;
+}
+
+/* 점 3개 애니메이션 */
+.dot {
+  width: 6px;
+  height: 6px;
+  background: #888;
+  border-radius: 50%;
+  animation: blink 1.4s infinite both;
+}
+
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes blink {
+  0% { opacity: .2; }
+  20% { opacity: 1; }
+  100% { opacity: .2; }
+}
+
+
