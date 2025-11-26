@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AMMO Dashboard</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Custom Style -->
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+
+<body>
+  <div class="main-wrapper d-flex">
+
+    <!-- =============================== -->
+    <!-- Sidebar -->
+    <!-- =============================== -->
+<!-- Sidebar -->
+<aside class="sidebar d-flex flex-column">
+  <div class="sidebar-inner p-4">
+
+    <!-- ✅ 로고 (밝은 배경 추가) -->
+    <a href="/" class="brand d-block mb-4 text-decoration-none logo-wrapper">
+      <div class="logo-bg p-2 rounded-3">
+        <img src="{{ url_for('static', filename='img/ammo_logo.png') }}" 
+             alt="AMMO Logo" 
+             class="img-fluid ammo-logo">
+      </div>
+    </a>
+
+    <!-- 메뉴 -->
+    <ul class="menu list-unstyled mt-4">
+      <li><a href="/dashboard#analytics" class="nav-link">분석</a></li>
+      <li><a href="/dashboard#simulate" class="nav-link">시뮬레이션</a></li>
+      <li><a href="#" class="nav-link">소개</a></li>
+    </ul>
+  </div>
+
+  <!-- 하단 로그아웃 -->
+  <div class="sidebar-footer mt-auto d-flex align-items-center ps-4 py-3">
+    <a href="#" class="logout-icon text-white text-decoration-none d-flex align-items-center gap-2">
+      <i class="bi bi-box-arrow-right fs-5"></i>
+      <span class="small text-white-50"></span>
+    </a>
+  </div>
+</aside>
+
+    <!-- =============================== -->
+    <!-- Main Content -->
+    <!-- =============================== -->
+    <main class="main-content flex-grow-1 d-flex flex-column">
+      
+      <!-- 상단바 -->
+      <nav class="topbar d-flex justify-content-between align-items-center px-4 py-3 border-bottom">
+        <h6 class="fw-semibold mb-0">Data Analytics Dashboard</h6>
+        <div class="user d-flex align-items-center gap-2">
+          <i class="bi bi-person-circle fs-4 text-secondary"></i>
+          <span class="small text-muted">Admin</span>
+        </div>
+      </nav>
+
+      <!-- 본문 영역 -->
+      <div class="dashboard-container p-4 flex-grow-1">
+        {% block content %}{% endblock %}
+      </div>
+
+      <!-- ✅ 전역 Footer -->
+      <footer class="global-footer text-center py-3 mt-auto">
+        <div class="footer-inner">
+          <span class="footer-brand fw-semibold">AMMO</span>
+          <span class="mx-2 text-muted">|</span>
+          <span class="footer-text">
+            © 2025 AMMO Project — Powered by <strong>Flask</strong> &amp; <strong>Plotly</strong>
+          </span>
+        </div>
+      </footer>      
+    </main>
+  </div>
+
+  <!-- =============================== -->
+  <!-- JS Scripts -->
+  <!-- =============================== -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.28.1.min.js"></script>
+  <script src="{{ url_for('static', filename='js/chart.js') }}"></script>
+
+  <!-- 사이드바 및 탭 이벤트 -->
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const links = document.querySelectorAll(".sidebar .nav-link");
+    const currentPath = window.location.pathname;
+
+    // 홈 화면에서는 비활성화
+    if (currentPath === "/") {
+      links.forEach(l => l.classList.remove("active"));
+    }
+
+    // 부드러운 스크롤 및 active 유지
+    links.forEach(link => {
+      link.addEventListener("click", e => {
+        const target = document.querySelector(link.getAttribute("href"));
+        if (target) {
+          e.preventDefault();
+          links.forEach(l => l.classList.remove("active"));
+          link.classList.add("active");
+          window.scrollTo({
+            top: target.offsetTop - 40,
+            behavior: "smooth"
+          });
+        }
+      });
+    });
+
+    // 탭 전환 시 Plotly 리사이즈 (검색광고/쇼핑라이브)
+    const tabs = document.querySelectorAll('button[data-bs-toggle="tab"]');
+    tabs.forEach(tab => {
+      tab.addEventListener('shown.bs.tab', () => {
+        if (window.Plotly) {
+          ['trend','share','gender','age','heat_b'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) Plotly.Plots.resize(el);
+          });
+          document.querySelectorAll('.chart-container iframe').forEach(frame => {
+            frame.style.height = "420px";
+            frame.style.width = "100%";
+          });
+        }
+      });
+    });
+  });
+  </script>
+  <div id="chatbot">
+    <button id="chatbot-toggle" class="btn btn-primary rounded-circle shadow">💬</button>
+  
+    <div id="chatbot-window" class="chatbot-window shadow">
+      <div class="chatbot-header">AMMO Assistant</div>
+      <div id="chatbot-body" class="chatbot-body"></div>
+      <div class="chatbot-input">
+        <input type="text" id="chatbot-text" placeholder="메시지를 입력하세요">
+        <button id="chatbot-send" class="btn btn-sm btn-primary">▶</button>
+      </div>
+    </div>
+  </div>  
+</body>
+</html>

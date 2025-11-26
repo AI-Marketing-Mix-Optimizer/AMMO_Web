@@ -1,0 +1,355 @@
+/* ===============================
+   AMMO Dashboard – Compact Sidebar (Final Polished v3.1)
+=============================== */
+
+:root {
+  --sidebar-bg: #0b1530;
+  --sidebar-accent: #2ec4b6;
+  --main-bg: #f5f8fb;
+  --card-bg: #ffffffcc;
+  --border-light: #e5e9ef;
+  --text-dark: #1b1f27;
+  --muted: #6c757d;
+  --shadow: rgba(0,0,0,0.08);
+  --primary-gradient: linear-gradient(135deg, #00b4d8, #0077b6);
+}
+
+/* ===================== */
+/* Layout */
+/* ===================== */
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  background: var(--main-bg);
+  font-family: 'Noto Sans KR', sans-serif;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.main-wrapper {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ===================== */
+/* Sidebar */
+/* ===================== */
+.sidebar {
+  width: 180px;
+  background: var(--sidebar-bg);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 4px 0 10px rgba(0,0,0,0.15);
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
+  overflow: hidden;
+  padding-bottom: 10px;
+}
+
+.sidebar a {
+  display: block;
+  padding: 10px 14px;
+  color: #b8c1d1;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.25s ease;
+}
+.sidebar a.active,
+.sidebar a:hover {
+  background: var(--sidebar-accent);
+  color: #fff;
+  transform: translateX(2px);
+}
+
+/* ===================== */
+/* Sidebar Footer (Logout) */
+/* ===================== */
+.sidebar-footer {
+  position: relative;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 14px 18px;
+}
+
+/* 아이콘만 거의 왼쪽 벽에 붙이기 */
+.logout-icon {
+  position: absolute;
+  left: 10px;              /* ✅ 왼쪽에서 살짝만 띄움 */
+  bottom: 12px;
+  text-decoration: none;
+}
+
+.logout-icon i {
+  font-size: 1.5rem;
+  color: #b8c1d1;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.logout-icon:hover i {
+  transform: translateX(4px);
+  color: var(--sidebar-accent);
+}
+
+/* ===================== */
+/* Logo */
+/* ===================== */
+.logo-wrapper {
+  background: var(--sidebar-bg);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+  margin-bottom: 22px;
+  box-shadow: inset 0 0 20px rgba(255,255,255,0.05);
+}
+.ammo-logo {
+  width: 80px;
+  filter: invert(1) brightness(1.2) contrast(1.1);
+  mix-blend-mode: normal;
+  transition: transform 0.2s ease;
+}
+.ammo-logo:hover { transform: scale(1.05); }
+
+/* ===================== */
+/* Main Area */
+/* ===================== */
+.main-content {
+  flex-grow: 1;
+  width: calc(100% - 180px);
+  overflow-y: auto;
+}
+.dashboard-container { padding: 30px; }
+
+/* ===================== */
+/* Topbar */
+/* ===================== */
+.topbar {
+  background: #fff;
+  box-shadow: 0 2px 6px var(--shadow);
+  z-index: 10;
+}
+.profile-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--primary-gradient);
+}
+
+/* ===================== */
+/* Cards / Sections */
+/* ===================== */
+section h5 {
+  font-weight: 700;
+  font-size: 1.25rem;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.dashboard-card {
+  background: var(--card-bg);
+  border-radius: 14px;
+  box-shadow: 0 6px 20px var(--shadow);
+  padding: 26px;
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-light);
+  transition: transform 0.2s ease;
+}
+.dashboard-card:hover { transform: translateY(-2px); }
+.card-header { border-bottom: none; margin-bottom: 20px; }
+.card-header span { font-size: 0.85rem; color: var(--muted); }
+
+/* ===================== */
+/* Charts */
+/* ===================== */
+.ammo-chart {
+  width: 100%;
+  min-height: 400px;
+  margin-bottom: 35px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 2px 6px var(--shadow);
+  padding: 10px;
+}
+
+/* ===================== */
+/* Tabs */
+/* ===================== */
+.nav-tabs .nav-link {
+  color: #6c757d;
+  border: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+.nav-tabs .nav-link:hover { color: var(--sidebar-accent); }
+.nav-tabs .nav-link.active {
+  color: var(--sidebar-accent);
+  font-weight: 600;
+  border-bottom: 2px solid var(--sidebar-accent);
+  background: transparent;
+}
+
+/* ===================== */
+/* Home Hero Section */
+/* ===================== */
+.home-hero {
+  position: relative;
+  width: 100%;
+  height: 90vh;
+  background: url("https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=1600&q=80")
+              center/cover no-repeat;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.home-hero .overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+}
+.home-hero .content {
+  position: relative;
+  z-index: 2;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+/* ===================== */
+/* Global Footer */
+/* ===================== */
+.global-footer {
+  background: #ffffffee;
+  border-top: 1px solid var(--border-light);
+  box-shadow: 0 -2px 6px var(--shadow);
+  text-align: center;
+  padding: 10px 0;
+  font-size: 0.9rem;
+  letter-spacing: 0.2px;
+}
+.global-footer .footer-brand {
+  color: var(--sidebar-accent);
+  font-weight: 700;
+}
+.global-footer .footer-text { color: #555; }
+.global-footer strong {
+  color: #0077b6;
+  font-weight: 600;
+}
+
+/* ===================== */
+/* Responsive */
+/* ===================== */
+@media (max-width: 992px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    border-radius: 0;
+  }
+  .dashboard-container { padding: 15px; }
+  .dashboard-card { padding: 20px; }
+}
+
+/* ===================== */
+/* Chatbot (AMMO Theme Bubble Style) */
+/* ===================== */
+#chatbot {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  z-index: 999999;
+  pointer-events: auto;
+}
+
+#chatbot-toggle {
+  width: 60px;
+  height: 60px;
+  font-size: 1.6rem;
+  border-radius: 50%;
+}
+
+.chatbot-window {
+  display: none;
+  width: 340px;
+  max-height: 500px;
+  background: #fefefe;
+  border-radius: 14px;
+  overflow: hidden;
+  flex-direction: column;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+}
+
+.chatbot-header {
+  background: #0077b6;
+  color: #fff;
+  padding: 12px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.3px;
+}
+
+.chatbot-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #f8fafc;
+}
+
+.chatbot-input {
+  display: flex;
+  border-top: 1px solid #e0e0e0;
+  background: #fff;
+}
+.chatbot-input input {
+  flex-grow: 1;
+  border: none;
+  padding: 12px;
+  outline: none;
+  font-size: 0.95rem;
+  background: transparent;
+}
+.chatbot-input button {
+  border: none;
+  background: #0077b6;
+  color: white;
+  padding: 0 14px;
+  border-radius: 0;
+}
+
+/* 말풍선 공통 */
+.chatbot-message {
+  max-width: 80%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 0.9rem;
+  line-height: 1.35;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  white-space: pre-wrap;
+}
+
+/* 사용자 메시지 */
+.chatbot-user {
+  align-self: flex-end;
+  background: #0077b6;
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+/* 봇 메시지 */
+.chatbot-bot {
+  align-self: flex-start;
+  background: #e9f5f8;
+  color: #1b1f27;
+  border-bottom-left-radius: 4px;
+}
