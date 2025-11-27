@@ -76,7 +76,8 @@ def smart_router(user_input: str, intent: str):
         2) 각 번호는 반드시 **줄바꿈 1회 후 시작**할 것.
         3) 번호 안의 하위 bullet은 앞에 '-'를 붙이고 줄바꿈을 넣을 것.
         4) 문장 끝마다 자연스러운 개행을 유지할 것.
-        5) HTML이나 Markdown 없이 **순수 텍스트 줄바꿈**만 사용한다.
+        5) HTML이나 Markdown 없이 순수 텍스트 줄바꿈만 사용한다.
+        6) 강조를 위한 마크다운 문법 사용 금지.
 
         질문:
         {user_input}

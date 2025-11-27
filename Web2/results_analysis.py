@@ -83,7 +83,7 @@ def interpret_simulation_result(
                 "content": prompt
             }
         ],
-        temperature=0.5,
+        temperature=0.3,
     )
 
     interpretation = response.choices[0].message.content.strip()
