@@ -1,7 +1,3 @@
-/* ===============================
-   AMMO Dashboard – Compact Sidebar (Final Polished v3.1)
-=============================== */
-
 :root {
   --sidebar-bg: #0b1530;
   --sidebar-accent: #2ec4b6;
@@ -14,9 +10,7 @@
   --primary-gradient: linear-gradient(135deg, #00b4d8, #0077b6);
 }
 
-/* ===================== */
-/* Layout */
-/* ===================== */
+/* 레이아웃 기본값 */
 html, body {
   width: 100%;
   height: 100%;
@@ -29,16 +23,15 @@ html, body {
 
 .main-wrapper {
   display: flex;
-  width: 100%;
   height: 100vh;
+  width: 100%;
   overflow: hidden;
 }
 
-/* ===================== */
-/* Sidebar */
-/* ===================== */
+/* 사이드바 */
 .sidebar {
   width: 180px;
+  min-width: 180px;
   background: var(--sidebar-bg);
   color: #fff;
   display: flex;
@@ -68,19 +61,16 @@ html, body {
   transform: translateX(2px);
 }
 
-/* ===================== */
-/* Sidebar Footer (Logout) */
-/* ===================== */
+/* 사이드바 하단(로그아웃) */
 .sidebar-footer {
   position: relative;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding: 14px 18px;
 }
 
-/* 아이콘만 거의 왼쪽 벽에 붙이기 */
 .logout-icon {
   position: absolute;
-  left: 10px;              /* ✅ 왼쪽에서 살짝만 띄움 */
+  left: 10px;
   bottom: 12px;
   text-decoration: none;
 }
@@ -96,9 +86,7 @@ html, body {
   color: var(--sidebar-accent);
 }
 
-/* ===================== */
-/* Logo */
-/* ===================== */
+/* 로고 영역 */
 .logo-wrapper {
   background: var(--sidebar-bg);
   border-radius: 12px;
@@ -115,19 +103,15 @@ html, body {
 }
 .ammo-logo:hover { transform: scale(1.05); }
 
-/* ===================== */
-/* Main Area */
-/* ===================== */
+/* 메인 영역 */
 .main-content {
   flex-grow: 1;
-  width: calc(100% - 180px);
   overflow-y: auto;
+  min-width: 0;
 }
 .dashboard-container { padding: 30px; }
 
-/* ===================== */
-/* Topbar */
-/* ===================== */
+/* 상단바 */
 .topbar {
   background: #fff;
   box-shadow: 0 2px 6px var(--shadow);
@@ -140,9 +124,7 @@ html, body {
   background: var(--primary-gradient);
 }
 
-/* ===================== */
-/* Cards / Sections */
-/* ===================== */
+/* 카드/섹션 */
 section h5 {
   font-weight: 700;
   font-size: 1.25rem;
@@ -158,14 +140,13 @@ section h5 {
   backdrop-filter: blur(8px);
   border: 1px solid var(--border-light);
   transition: transform 0.2s ease;
+  min-width: 0;
 }
 .dashboard-card:hover { transform: translateY(-2px); }
 .card-header { border-bottom: none; margin-bottom: 20px; }
 .card-header span { font-size: 0.85rem; color: var(--muted); }
 
-/* ===================== */
-/* Charts */
-/* ===================== */
+/* 차트 */
 .ammo-chart {
   width: 100%;
   min-height: 400px;
@@ -176,9 +157,7 @@ section h5 {
   padding: 10px;
 }
 
-/* ===================== */
-/* Tabs */
-/* ===================== */
+/* 탭 */
 .nav-tabs .nav-link {
   color: #6c757d;
   border: none;
@@ -193,13 +172,12 @@ section h5 {
   background: transparent;
 }
 
-/* ===================== */
-/* Home Hero Section */
-/* ===================== */
+/* 홈 히어로 섹션 */
 .home-hero {
   position: relative;
   width: 100%;
   height: 90vh;
+  min-width: 0;
   background: url("https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=1600&q=80")
               center/cover no-repeat;
   border-radius: 12px;
@@ -214,15 +192,16 @@ section h5 {
   background: rgba(0, 0, 0, 0.35);
 }
 .home-hero .content {
+  max-width: 100%;
+  word-break: keep-all;
+  overflow-wrap: break-word;
   position: relative;
   z-index: 2;
   color: #fff;
   text-shadow: 0 2px 8px rgba(0,0,0,0.5);
 }
 
-/* ===================== */
-/* Global Footer */
-/* ===================== */
+/* 전역 푸터 */
 .global-footer {
   background: #ffffffee;
   border-top: 1px solid var(--border-light);
@@ -242,20 +221,7 @@ section h5 {
   font-weight: 600;
 }
 
-/* ===================== */
-/* Responsive */
-/* ===================== */
-@media (max-width: 992px) {
-  .sidebar {
-    width: 100%;
-    height: auto;
-    flex-direction: row;
-    border-radius: 0;
-  }
-  .dashboard-container { padding: 15px; }
-  .dashboard-card { padding: 20px; }
-}
-/* 오른쪽 하단 챗봇 버튼 */
+/* 챗봇 버튼 */
 #chatbot-toggle {
     position: fixed;
     right: 50px;
@@ -303,6 +269,7 @@ section h5 {
     align-items: center;
 }
 
+/* 메시지 영역 */
 .chat-body {
   flex: 1;
   padding: 10px;
@@ -325,14 +292,14 @@ section h5 {
   margin-left: auto;
 }
 
-/* 챗봇 메시지 */
+/* 봇 메시지 */
 .bot-msg {
   align-self: flex-start;
   background: #f2f2f2;
   margin-right: auto;
 }
 
-/* 입력박스 */
+/* 입력창 */
 .chat-input-box {
     display: flex;
     border-top: 1px solid #ddd;
@@ -351,6 +318,8 @@ section h5 {
     padding: 10px 15px;
     cursor: pointer;
 }
+
+/* 추천 버튼 */
 .chat-suggestions {
     padding: 10px;
     display: flex;
@@ -368,6 +337,7 @@ section h5 {
     font-size: 13px;
 }
 
+/* 분석 결과 로딩 */
 #result_analysis.loading {
   background-image: url("/static/img/spinner.gif");
   background-repeat: no-repeat;
@@ -385,7 +355,7 @@ section h5 {
     font-size: 0.95rem;
 }
 
-/* 챗봇 타이핑 표시 */
+/* 봇 입력 중 애니메이션 */
 .bot-typing {
   align-self: flex-start;
   background: #f2f2f2;
@@ -396,11 +366,10 @@ section h5 {
   gap: 4px;
 }
 
-/* 점 3개 애니메이션 */
 .dot {
   width: 6px;
   height: 6px;
-  background: #888;
+ 	background: #888;
   border-radius: 50%;
   animation: blink 1.4s infinite both;
 }
@@ -408,10 +377,13 @@ section h5 {
 .dot:nth-child(2) { animation-delay: 0.2s; }
 .dot:nth-child(3) { animation-delay: 0.4s; }
 
+.js-plotly-plot, .plot-container, .svg-container {
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
 @keyframes blink {
   0% { opacity: .2; }
   20% { opacity: 1; }
   100% { opacity: .2; }
 }
-
-
