@@ -1,15 +1,9 @@
-// =========================
-// AMMO Dashboard Chart Script
-// =========================
-
 document.addEventListener("DOMContentLoaded", () => {
   loadSearchData();
 });
 document.getElementById('applySimulation').addEventListener('click', runSimulation);
 
-// -----------------------------
 // 검색광고 실데이터 시각화
-// -----------------------------
 async function loadSearchData() {
   const response = await fetch('/data/search_volume');
   const text = await response.text();
@@ -179,9 +173,7 @@ Plotly.newPlot('simChart', [
   legend: { orientation: 'h' }
 }, { responsive: true });
 
-// -----------------------------
 // ROI 시뮬레이션 실행
-// -----------------------------
 async function runSimulation() {
   try {
     const warningEl = document.getElementById('simulation-warning');
@@ -197,9 +189,7 @@ async function runSimulation() {
       new_competitor_event: document.getElementById('newCompetitorEvent').value
     };
 
-    // -----------------------------
-    // ① 그래프 즉시 계산 요청
-    // -----------------------------
+    // 그래프 즉시 계산 요청
     const res = await fetch('/simulate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -209,7 +199,7 @@ async function runSimulation() {
     const r = await res.json();
     if (!r.success) return;
 
-    //  그래프와 수치 먼저 표시
+    // 그래프와 수치 먼저 표시
     document.getElementById('result-revenue').innerHTML =
       `<b style="color:#0077b6">${Number(r.new_revenue).toLocaleString()} 원</b>`;
     document.getElementById('result-revenue-change').innerHTML =
@@ -237,9 +227,7 @@ async function runSimulation() {
       y: [simData.revenue, simData.roi]
     });
 
-    // -----------------------------
-    // ② LLM 해석 비동기 호출 (그래프 그린 후)
-    // -----------------------------
+    // LLM 해석 비동기 호출 (그래프 그린 후)
     const textarea = document.getElementById('result_analysis');
     textarea.value = " 결과 해석을 생성 중입니다... 잠시만 기다려주세요.";
     textarea.style.color = "#888";
