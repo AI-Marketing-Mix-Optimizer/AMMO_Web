@@ -64,7 +64,7 @@ def interpret_simulation_result(
         # 추가 요구사항
         - 숫자는 자동으로 한글화(천 단위 콤마 포함)
         - 문장은 부드럽고 자연스럽게
-        - 과장하지 말고 실제 수치를 근거로 설명
+        - 과장하지 말고 사용자의 입력과 계산결과의 실제 수치를 근거로 설명
         - 전문가용 섹션은 별도로 구분되게 작성
         """
 
@@ -80,7 +80,7 @@ def interpret_simulation_result(
                 "content": prompt
             }
         ],
-        temperature=0.3,
+        temperature=0.5,
     )
 
     interpretation = response.choices[0].message.content.strip()
